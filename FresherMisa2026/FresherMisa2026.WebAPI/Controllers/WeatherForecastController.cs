@@ -1,3 +1,4 @@
+using FresherMisa2026.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FresherMisa2026.WebAPI.Controllers
@@ -12,15 +13,18 @@ namespace FresherMisa2026.WebAPI.Controllers
         ];
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public ServiceResponse Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            ServiceResponse response = null;
+            response.Data = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+
+            return response;
         }
     }
 }
