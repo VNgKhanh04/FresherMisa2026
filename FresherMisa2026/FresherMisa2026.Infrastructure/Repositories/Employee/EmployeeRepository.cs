@@ -2,6 +2,7 @@ using Dapper;
 using FresherMisa2026.Application.Extensions;
 using FresherMisa2026.Application.Interfaces.Repositories;
 using FresherMisa2026.Entities.Employee;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
@@ -43,7 +44,14 @@ namespace FresherMisa2026.Infrastructure.Repositories
             return await _dbConnection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
         }
 
-        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(Guid? departmentId, Guid? positionId, string? salaryFrom, string? salaryTo, int? gender, DateTime? hireDateFrom, DateTime? hireDateTo)
+        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(
+            Guid? departmentId,
+            Guid? positionId,
+            string? salaryFrom,
+            string? salaryTo,
+            int? gender,
+            DateTime? hireDateFrom,
+            DateTime? hireDateTo)
         {
             var param = new DynamicParameters();
             param.Add("v_DepartmentID", departmentId);
@@ -53,8 +61,8 @@ namespace FresherMisa2026.Infrastructure.Repositories
             param.Add("v_SalaryTo", decimal.TryParse(salaryTo, out var st) ? st : (decimal?)null);
 
             param.Add("v_Gender", gender);
-            param.Add("v_HireDateFrom", hireDateFrom);
-            param.Add("v_HireDateTo", hireDateTo);
+            param.Add("v_HireDateFrom", hireDateFrom?.Date);
+            param.Add("v_HireDateTo", hireDateTo?.Date);
 
             return await _dbConnection.QueryAsync<Employee>("Proc_Employee_Filter", param, commandType: System.Data.CommandType.StoredProcedure);
         }

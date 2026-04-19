@@ -1,15 +1,13 @@
 DROP PROCEDURE IF EXISTS `Proc_Employee_Filter`;
- 
 DELIMITER ;;
- 
 CREATE PROCEDURE `Proc_Employee_Filter`(
-  IN v_DepartmentID  CHAR(36),
-  IN v_PositionID    CHAR(36),
-  IN v_SalaryFrom    DECIMAL(18, 4),
-  IN v_SalaryTo      DECIMAL(18, 4),
-  IN v_Gender        INT,
-  IN v_HireDateFrom  DATE,
-  IN v_HireDateTo    DATE
+    IN v_DepartmentID  CHAR(36),
+    IN v_PositionID    CHAR(36),
+    IN v_SalaryFrom    DECIMAL(18, 4),
+    IN v_SalaryTo      DECIMAL(18, 4),
+    IN v_Gender        INT,
+    IN v_HireDateFrom  DATE,
+    IN v_HireDateTo    DATE
 )
 BEGIN
   DECLARE v_where TEXT DEFAULT ' WHERE 1=1 ';
@@ -35,11 +33,11 @@ BEGIN
   END IF;
  
   IF v_HireDateFrom IS NOT NULL THEN
-    SET v_where = CONCAT(v_where, ' AND DATE(e.CreatedDate) >= ''', v_HireDateFrom, '''');
+    SET v_where = CONCAT(v_where, ' AND DATE(e.HireDate) >= ''', v_HireDateFrom, '''');
   END IF;
  
   IF v_HireDateTo IS NOT NULL THEN
-    SET v_where = CONCAT(v_where, ' AND DATE(e.CreatedDate) <= ''', v_HireDateTo, '''');
+    SET v_where = CONCAT(v_where, ' AND DATE(e.HireDate) <= ''', v_HireDateTo, '''');
   END IF;
  
   SET @v_sql = CONCAT(
@@ -65,12 +63,13 @@ BEGIN
        p.PositionCode,
        p.PositionName,
        e.Salary,
+       e.HireDate,
        e.CreatedDate
      FROM employee e
      LEFT JOIN department d ON e.DepartmentID = d.DepartmentID
      LEFT JOIN position   p ON e.PositionID   = p.PositionID',
     v_where,
-    ' ORDER BY e.CreatedDate DESC'
+    ' ORDER BY e.HireDate DESC, e.CreatedDate DESC'
   );
  
   PREPARE stmt FROM @v_sql;
@@ -79,5 +78,4 @@ BEGIN
  
 END
 ;;
- 
 DELIMITER ;

@@ -49,7 +49,14 @@ namespace FresherMisa2026.Application.Services
         /// <param name="hireDateFrom"></param>
         /// <param name="hireDateTo"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(Guid? departmentId, Guid? positionId, string? salaryFrom, string? salaryTo, int? gender, DateTime? hireDateFrom, DateTime? hireDateTo)
+        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(
+            Guid? departmentId,
+            Guid? positionId,
+            string? salaryFrom,
+            string? salaryTo,
+            int? gender,
+            DateTime? hireDateFrom,
+            DateTime? hireDateTo)
         {
             return await _employeeRepository.GetEmployeesFilterAsync(departmentId, positionId, salaryFrom, salaryTo, gender, hireDateFrom, hireDateTo);
         }
