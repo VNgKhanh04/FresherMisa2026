@@ -48,9 +48,38 @@ namespace FresherMisa2026.Application.Services
                 errors.Add(new ValidationError("EmployeeCode", "Mã nhân viên không được vượt quá 20 ký tự"));
             }
 
-            if (string.IsNullOrEmpty(employee.EmployeeName))
+            if (!string.IsNullOrEmpty(employee.EmployeeCode))
             {
-                errors.Add(new ValidationError("EmployeeName", "Tên nhân viên không được để trống"));
+                var existingEmployee = _employeeRepository.GetEmployeeByCode(employee.EmployeeCode).Result;
+                if (existingEmployee != null && existingEmployee.EmployeeID != employee.EmployeeID)
+                {
+                    errors.Add(new ValidationError("EmployeeCode", "Mã nhân viên đã tồn tại"));
+                }
+            }
+
+            if (!string.IsNullOrEmpty(employee.Email)) { 
+                var regex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(employee.Email, regex))
+                {
+                    errors.Add(new ValidationError("Email", "Email không hợp lệ"));
+                }
+            }
+
+            if (!string.IsNullOrEmpty(employee.PhoneNumber))
+            {
+                var regex = @"^\d{10}$";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(employee.PhoneNumber, regex))
+                {
+                    errors.Add(new ValidationError("PhoneNumber", "Số điện thoại không hợp lệ"));
+                }
+            }
+
+            if (DateTime.TryParse(employee.DateOfBirth.ToString(), out var dateOfBirth))
+            {
+                if (dateOfBirth > DateTime.Now)
+                {
+                    errors.Add(new ValidationError("DateOfBirth", "Ngày sinh không hợp lệ"));
+                }
             }
 
             return errors;
