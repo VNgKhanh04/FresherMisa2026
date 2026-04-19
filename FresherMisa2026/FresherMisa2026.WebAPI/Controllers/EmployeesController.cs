@@ -45,5 +45,23 @@ namespace FresherMisa2026.WebAPI.Controllers
 
             return response;
         }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult<ServiceResponse>> GetEmployeesFilter(
+            [FromQuery] Guid? departmentId, 
+            [FromQuery] Guid? positionId, 
+            [FromQuery] string? salaryFrom, 
+            [FromQuery] string? salaryTo,
+            [FromQuery] int? gender,
+            [FromQuery] DateTime? hireDateFrom,
+            [FromQuery] DateTime? hireDateTo
+        )
+        {
+            var response = new ServiceResponse();
+            response.Data = await _employeeService.GetEmployeesFilterAsync(departmentId, positionId, salaryFrom, salaryTo, gender, hireDateFrom, hireDateTo);
+            response.IsSuccess = true;
+
+            return Ok(response);
+        }
     }
 }

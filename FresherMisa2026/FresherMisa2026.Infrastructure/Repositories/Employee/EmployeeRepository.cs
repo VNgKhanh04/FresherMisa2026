@@ -42,5 +42,21 @@ namespace FresherMisa2026.Infrastructure.Repositories
             };
             return await _dbConnection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
         }
+
+        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(Guid? departmentId, Guid? positionId, string? salaryFrom, string? salaryTo, int? gender, DateTime? hireDateFrom, DateTime? hireDateTo)
+        {
+            var param = new DynamicParameters();
+            param.Add("v_DepartmentID", departmentId);
+            param.Add("v_PositionID", positionId);
+
+            param.Add("v_SalaryFrom", decimal.TryParse(salaryFrom, out var sf) ? sf : (decimal?)null);
+            param.Add("v_SalaryTo", decimal.TryParse(salaryTo, out var st) ? st : (decimal?)null);
+
+            param.Add("v_Gender", gender);
+            param.Add("v_HireDateFrom", hireDateFrom);
+            param.Add("v_HireDateTo", hireDateTo);
+
+            return await _dbConnection.QueryAsync<Employee>("Proc_Employee_Filter", param, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }
