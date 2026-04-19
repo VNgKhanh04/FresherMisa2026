@@ -7,10 +7,23 @@ CREATE PROCEDURE `Proc_Employee_Filter`(
     IN v_SalaryTo      DECIMAL(18, 4),
     IN v_Gender        INT,
     IN v_HireDateFrom  DATE,
-    IN v_HireDateTo    DATE
+    IN v_HireDateTo    DATE,
+    IN v_pageSize      INT,
+    IN v_pageIndex     INT
 )
 BEGIN
+  DECLARE v_offset INT;
   DECLARE v_where TEXT DEFAULT ' WHERE 1=1 ';
+
+  IF v_pageIndex < 1 THEN
+    SET v_pageIndex = 1;
+  END IF;
+
+  IF v_pageSize < 1 THEN
+    SET v_pageSize = 10;
+  END IF;
+
+  SET v_offset = (v_pageIndex - 1) * v_pageSize;
  
   IF v_DepartmentID IS NOT NULL AND v_DepartmentID <> '' THEN
     SET v_where = CONCAT(v_where, ' AND e.DepartmentID = ''', v_DepartmentID, '''');
@@ -69,12 +82,25 @@ BEGIN
      LEFT JOIN department d ON e.DepartmentID = d.DepartmentID
      LEFT JOIN position   p ON e.PositionID   = p.PositionID',
     v_where,
-    ' ORDER BY e.HireDate DESC, e.CreatedDate DESC'
+    ' ORDER BY e.CreatedDate DESC',
+    ' LIMIT ', v_offset, ', ', v_pageSize
+  );
+
+  SET @v_sqlCount = CONCAT(
+    'SELECT COUNT(*) AS Total
+     FROM employee e
+     LEFT JOIN department d ON e.DepartmentID = d.DepartmentID
+     LEFT JOIN position   p ON e.PositionID   = p.PositionID',
+    v_where
   );
  
-  PREPARE stmt FROM @v_sql;
-  EXECUTE stmt;
-  DEALLOCATE PREPARE stmt;
+  PREPARE stmt1 FROM @v_sql;
+  EXECUTE stmt1;
+  DEALLOCATE PREPARE stmt1;
+
+  PREPARE stmt2 FROM @v_sqlCount;
+  EXECUTE stmt2;
+  DEALLOCATE PREPARE stmt2;
  
 END
 ;;

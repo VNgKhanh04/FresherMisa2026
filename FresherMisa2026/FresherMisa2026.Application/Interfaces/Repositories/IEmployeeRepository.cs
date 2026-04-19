@@ -1,3 +1,4 @@
+using FresherMisa2026.Entities;
 using FresherMisa2026.Entities.Employee;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,15 @@ namespace FresherMisa2026.Application.Interfaces.Repositories
         Task<Employee> GetEmployeeByCode(string code);
         Task<IEnumerable<Employee>> GetEmployeesByDepartmentId(Guid departmentId);
         Task<IEnumerable<Employee>> GetEmployeesByPositionId(Guid positionId);
-        Task<IEnumerable<Employee>> GetEmployeesFilterAsync(
+        Task<PagingResponse<Employee>> GetEmployeesFilterAsync(
             Guid? departmentId,
             Guid? positionId,
             string? salaryFrom,
             string? salaryTo,
             int? gender,
             DateTime? hireDateFrom,
-            DateTime? hireDateTo);
+            DateTime? hireDateTo,
+            int pageSize,
+            int pageIndex);
     }
 }

@@ -54,11 +54,22 @@ namespace FresherMisa2026.WebAPI.Controllers
             [FromQuery] string? salaryTo,
             [FromQuery] int? gender,
             [FromQuery] DateTime? hireDateFrom,
-            [FromQuery] DateTime? hireDateTo
+            [FromQuery] DateTime? hireDateTo,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int pageIndex = 1
         )
         {
             var response = new ServiceResponse();
-            response.Data = await _employeeService.GetEmployeesFilterAsync(departmentId, positionId, salaryFrom, salaryTo, gender, hireDateFrom, hireDateTo);
+            response.Data = await _employeeService.GetEmployeesFilterAsync(
+                departmentId,
+                positionId,
+                salaryFrom,
+                salaryTo,
+                gender,
+                hireDateFrom,
+                hireDateTo,
+                pageSize,
+                pageIndex);
             response.IsSuccess = true;
 
             return Ok(response);

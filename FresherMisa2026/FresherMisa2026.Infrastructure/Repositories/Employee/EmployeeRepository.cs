@@ -1,6 +1,7 @@
 using Dapper;
 using FresherMisa2026.Application.Extensions;
 using FresherMisa2026.Application.Interfaces.Repositories;
+using FresherMisa2026.Entities;
 using FresherMisa2026.Entities.Employee;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -53,14 +54,16 @@ namespace FresherMisa2026.Infrastructure.Repositories
             return await connection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
         }
 
-        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(
+        public async Task<PagingResponse<Employee>> GetEmployeesFilterAsync(
             Guid? departmentId,
             Guid? positionId,
             string? salaryFrom,
             string? salaryTo,
             int? gender,
             DateTime? hireDateFrom,
-            DateTime? hireDateTo)
+            DateTime? hireDateTo,
+            int pageSize,
+            int pageIndex)
         {
             var param = new DynamicParameters();
             param.Add("v_DepartmentID", departmentId);
@@ -72,11 +75,27 @@ namespace FresherMisa2026.Infrastructure.Repositories
             param.Add("v_Gender", gender);
             param.Add("v_HireDateFrom", hireDateFrom?.Date);
             param.Add("v_HireDateTo", hireDateTo?.Date);
+            param.Add("v_pageSize", pageSize);
+            param.Add("v_pageIndex", pageIndex);
 
             await using var connection = CreateConnection();
             await connection.OpenAsync();
 
-            return await connection.QueryAsync<Employee>("Proc_Employee_Filter", param, commandType: System.Data.CommandType.StoredProcedure);
+            using var reader = await connection.QueryMultipleAsync(
+                "Proc_Employee_Filter",
+                param,
+                commandType: System.Data.CommandType.StoredProcedure);
+
+            var data = (await reader.ReadAsync<Employee>()).ToList();
+            var total = await reader.ReadFirstAsync<long>();
+
+            return new PagingResponse<Employee>
+            {
+                Total = total,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Data = data
+            };
         }
     }
 }

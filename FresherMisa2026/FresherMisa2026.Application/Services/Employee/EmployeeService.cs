@@ -49,16 +49,27 @@ namespace FresherMisa2026.Application.Services
         /// <param name="hireDateFrom"></param>
         /// <param name="hireDateTo"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(
+        public async Task<PagingResponse<Employee>> GetEmployeesFilterAsync(
             Guid? departmentId,
             Guid? positionId,
             string? salaryFrom,
             string? salaryTo,
             int? gender,
             DateTime? hireDateFrom,
-            DateTime? hireDateTo)
+            DateTime? hireDateTo,
+            int pageSize,
+            int pageIndex)
         {
-            return await _employeeRepository.GetEmployeesFilterAsync(departmentId, positionId, salaryFrom, salaryTo, gender, hireDateFrom, hireDateTo);
+            return await _employeeRepository.GetEmployeesFilterAsync(
+                departmentId,
+                positionId,
+                salaryFrom,
+                salaryTo,
+                gender,
+                hireDateFrom,
+                hireDateTo,
+                pageSize,
+                pageIndex);
         }
 
         protected override List<ValidationError> ValidateCustom(Employee employee)
