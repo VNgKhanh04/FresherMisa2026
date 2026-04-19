@@ -2,12 +2,13 @@
 using FresherMisa2026.Application.Extensions;
 using FresherMisa2026.Application.Interfaces.Repositories;
 using FresherMisa2026.Entities.Department;
+using FresherMisa2026.Entities.Employee;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FresherMisa2026.Infrastructure.Repositories
+namespace FresherMisa2026.Infrastructure.Repositories.Department
 {
     /// <summary>
     /// Repository for Department entity
