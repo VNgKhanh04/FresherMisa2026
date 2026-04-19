@@ -2,6 +2,7 @@ using FresherMisa2026.Application.Interfaces.Services;
 using FresherMisa2026.Entities;
 using FresherMisa2026.Entities.Enums;
 using Microsoft.AspNetCore.Mvc;
+using MySqlConnector;
 
 namespace FresherMisa2026.WebAPI.Controllers
 {
@@ -97,6 +98,18 @@ namespace FresherMisa2026.WebAPI.Controllers
 
                 return StatusCode((int)ResponseCode.Created, response);
             }
+            catch (MySqlException ex) when (IsDuplicateEmployeeCodeException(ex))
+            {
+                var response = new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Code = (int)ResponseCode.BadRequest,
+                    UserMessage = "Mã nhân viên đã tồn tại",
+                    DevMessage = ex.Message
+                };
+
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
@@ -119,6 +132,18 @@ namespace FresherMisa2026.WebAPI.Controllers
             }
 
             return Ok(response);
+        }
+
+        private static bool IsDuplicateEmployeeCodeException(MySqlException exception)
+        {
+            var isDuplicateErrorCode = exception.Number == 1062 || exception.Number == 1644;
+            if (!isDuplicateErrorCode)
+            {
+                return false;
+            }
+
+            return exception.Message.Contains("EmployeeCode", StringComparison.OrdinalIgnoreCase)
+                || exception.Message.Contains("UQ_EmployeeCode", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

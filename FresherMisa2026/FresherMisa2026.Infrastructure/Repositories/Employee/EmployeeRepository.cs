@@ -10,7 +10,7 @@ namespace FresherMisa2026.Infrastructure.Repositories
 {
     public class EmployeeRepository : BaseRepository<Employee>, IEmployeeRepository
     {
-        public EmployeeRepository(IConfiguration configuration) : base(configuration)
+        public EmployeeRepository(IConfiguration configuration, IMemoryCache memoryCache) : base(configuration, memoryCache)
         {
         }
 
@@ -21,7 +21,10 @@ namespace FresherMisa2026.Infrastructure.Repositories
             {
                 {"@EmployeeCode", code }
             };
-            return await _dbConnection.QueryFirstOrDefaultAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
+            await using var connection = CreateConnection();
+            await connection.OpenAsync();
+
+            return await connection.QueryFirstOrDefaultAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentId(Guid departmentId)
@@ -31,7 +34,10 @@ namespace FresherMisa2026.Infrastructure.Repositories
             {
                 {"@DepartmentID", departmentId }
             };
-            return await _dbConnection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
+            await using var connection = CreateConnection();
+            await connection.OpenAsync();
+
+            return await connection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesByPositionId(Guid positionId)
@@ -41,7 +47,10 @@ namespace FresherMisa2026.Infrastructure.Repositories
             {
                 {"@PositionID", positionId }
             };
-            return await _dbConnection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
+            await using var connection = CreateConnection();
+            await connection.OpenAsync();
+
+            return await connection.QueryAsync<Employee>(query, param, commandType: System.Data.CommandType.Text);
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesFilterAsync(
@@ -64,7 +73,10 @@ namespace FresherMisa2026.Infrastructure.Repositories
             param.Add("v_HireDateFrom", hireDateFrom?.Date);
             param.Add("v_HireDateTo", hireDateTo?.Date);
 
-            return await _dbConnection.QueryAsync<Employee>("Proc_Employee_Filter", param, commandType: System.Data.CommandType.StoredProcedure);
+            await using var connection = CreateConnection();
+            await connection.OpenAsync();
+
+            return await connection.QueryAsync<Employee>("Proc_Employee_Filter", param, commandType: System.Data.CommandType.StoredProcedure);
         }
     }
 }

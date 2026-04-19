@@ -879,3 +879,9 @@ INSERT INTO department VALUES
 -- Enable foreign keys
 -- 
 /*!40014 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS */;
+
+-- ======================================
+-- Update unique index cho EmployeeCode
+-- ======================================
+ALTER TABLE `Employee` 
+ADD UNIQUE INDEX `UQ_EmployeeCode` (`EmployeeCode` ASC) USING BTREE;
