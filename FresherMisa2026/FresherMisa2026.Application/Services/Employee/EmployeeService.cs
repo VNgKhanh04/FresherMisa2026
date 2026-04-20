@@ -20,13 +20,9 @@ namespace FresherMisa2026.Application.Services
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<Employee> GetEmployeeByCodeAsync(string code)
+        public async Task<Employee?> GetEmployeeByCodeAsync(string code)
         {
-            var employee = await _employeeRepository.GetEmployeeByCode(code);
-            if (employee == null)
-                throw new Exception("Employee not found");
-
-            return employee;
+            return await _employeeRepository.GetEmployeeByCode(code);
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentIdAsync(Guid departmentId)

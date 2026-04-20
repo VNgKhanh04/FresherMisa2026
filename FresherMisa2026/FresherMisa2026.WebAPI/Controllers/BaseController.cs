@@ -122,7 +122,20 @@ namespace FresherMisa2026.WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ServiceResponse>> Put([FromRoute] string id, [FromBody] TEntity entity)
         {
-            var response = await _baseService.UpdateAsync(Guid.Parse(id), entity);
+            if (!Guid.TryParse(id, out var entityId))
+            {
+                var badRequestResponse = new ServiceResponse
+                {
+                    IsSuccess = false,
+                    Code = (int)ResponseCode.BadRequest,
+                    UserMessage = "Id không hợp lệ",
+                    DevMessage = $"Id '{id}' không đúng định dạng Guid"
+                };
+
+                return BadRequest(badRequestResponse);
+            }
+
+            var response = await _baseService.UpdateAsync(entityId, entity);
 
             if (!response.IsSuccess)
             {

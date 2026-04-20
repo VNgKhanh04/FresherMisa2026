@@ -14,7 +14,7 @@ namespace FresherMisa2026.Infrastructure.Repositories
         {
         }
 
-        public async Task<Position> GetPositionByCode(string code)
+        public async Task<Position?> GetPositionByCode(string code)
         {
             string query = SQLExtension.GetQuery("Position.GetByCode");
             var param = new Dictionary<string, object>
