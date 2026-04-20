@@ -27,22 +27,14 @@ namespace FresherMisa2026.Application.Services
         /// </summary>
         /// <returns></returns>
         /// Created By: dvhai (10/04/2026)
-        public async Task<Department> GetDepartmentByCodeAsync(string code)
+        public async Task<Department?> GetDepartmentByCodeAsync(string code)
         {
-            var department = await _deptRepository.GetDepartmentByCode(code);
-            if (department == null)
-                throw new Exception("department is null");
-
-            return department;
+            return await _deptRepository.GetDepartmentByCode(code);
         }
 
-        public Task<IEnumerable<Employee>> GetEmployeesByDepartmentCodeAsync(string code)
+        public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentCodeAsync(string code)
         {
-            var employees = _deptRepository.GetEmployeesByDepartmentCode(code);
-            if (employees == null)
-                throw new Exception("department is null");
-
-            return employees;
+            return await _deptRepository.GetEmployeesByDepartmentCode(code);
         }
 
         #region OVERRIDE METHODS

@@ -103,9 +103,9 @@ namespace FresherMisa2026.Application.Services
                 }
             }
 
-            if (DateTime.TryParse(employee.DateOfBirth.ToString(), out var dateOfBirth))
+            if (employee.DateOfBirth.HasValue)
             {
-                if (dateOfBirth > DateTime.Now)
+                if (employee.DateOfBirth.Value.Date > DateTime.Now.Date)
                 {
                     errors.Add(new ValidationError("DateOfBirth", "Ngày sinh không hợp lệ"));
                 }

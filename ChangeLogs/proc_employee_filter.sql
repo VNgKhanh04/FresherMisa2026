@@ -15,11 +15,11 @@ BEGIN
   DECLARE v_offset INT;
   DECLARE v_where TEXT DEFAULT ' WHERE 1=1 ';
 
-  IF v_pageIndex < 1 THEN
+  IF v_pageIndex IS NULL OR v_pageIndex < 1 THEN
     SET v_pageIndex = 1;
   END IF;
 
-  IF v_pageSize < 1 THEN
+  IF v_pageSize IS NULL OR v_pageSize < 1 THEN
     SET v_pageSize = 10;
   END IF;
 

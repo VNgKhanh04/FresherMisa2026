@@ -13,7 +13,7 @@ namespace FresherMisa2026.Application.Interfaces.Repositories
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        Task<Department> GetDepartmentByCode(string code);
+        Task<Department?> GetDepartmentByCode(string code);
         Task<IEnumerable<Employee>> GetEmployeesByDepartmentCode(string code);
     }
 }

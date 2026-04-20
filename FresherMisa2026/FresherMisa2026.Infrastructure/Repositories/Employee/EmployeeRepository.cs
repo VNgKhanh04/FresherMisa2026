@@ -6,6 +6,7 @@ using FresherMisa2026.Entities.Employee;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace FresherMisa2026.Infrastructure.Repositories
 {
@@ -68,10 +69,8 @@ namespace FresherMisa2026.Infrastructure.Repositories
             var param = new DynamicParameters();
             param.Add("v_DepartmentID", departmentId);
             param.Add("v_PositionID", positionId);
-
-            param.Add("v_SalaryFrom", decimal.TryParse(salaryFrom, out var sf) ? sf : (decimal?)null);
-            param.Add("v_SalaryTo", decimal.TryParse(salaryTo, out var st) ? st : (decimal?)null);
-
+            param.Add("v_SalaryFrom", decimal.TryParse(salaryFrom, NumberStyles.Number, CultureInfo.InvariantCulture, out var salaryFromValue) ? salaryFromValue : (decimal?)null);
+            param.Add("v_SalaryTo", decimal.TryParse(salaryTo, NumberStyles.Number, CultureInfo.InvariantCulture, out var salaryToValue) ? salaryToValue : (decimal?)null);
             param.Add("v_Gender", gender);
             param.Add("v_HireDateFrom", hireDateFrom?.Date);
             param.Add("v_HireDateTo", hireDateTo?.Date);
