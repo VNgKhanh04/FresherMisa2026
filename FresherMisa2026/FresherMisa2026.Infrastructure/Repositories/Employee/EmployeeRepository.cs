@@ -66,27 +66,111 @@ namespace FresherMisa2026.Infrastructure.Repositories
             int pageSize,
             int pageIndex)
         {
+            if (pageSize < 1)
+            {
+                pageSize = 10;
+            }
+
+            if (pageIndex < 1)
+            {
+                pageIndex = 1;
+            }
+
             var param = new DynamicParameters();
-            param.Add("v_DepartmentID", departmentId);
-            param.Add("v_PositionID", positionId);
-            param.Add("v_SalaryFrom", decimal.TryParse(salaryFrom, NumberStyles.Number, CultureInfo.InvariantCulture, out var salaryFromValue) ? salaryFromValue : (decimal?)null);
-            param.Add("v_SalaryTo", decimal.TryParse(salaryTo, NumberStyles.Number, CultureInfo.InvariantCulture, out var salaryToValue) ? salaryToValue : (decimal?)null);
-            param.Add("v_Gender", gender);
-            param.Add("v_HireDateFrom", hireDateFrom?.Date);
-            param.Add("v_HireDateTo", hireDateTo?.Date);
-            param.Add("v_pageSize", pageSize);
-            param.Add("v_pageIndex", pageIndex);
+            var whereClauses = new List<string>();
+
+            if (departmentId.HasValue)
+            {
+                whereClauses.Add("e.DepartmentID = @DepartmentID");
+                param.Add("DepartmentID", departmentId);
+            }
+
+            if (positionId.HasValue)
+            {
+                whereClauses.Add("e.PositionID = @PositionID");
+                param.Add("PositionID", positionId);
+            }
+
+            if (decimal.TryParse(salaryFrom, NumberStyles.Number, CultureInfo.InvariantCulture, out var salaryFromValue))
+            {
+                whereClauses.Add("e.Salary >= @SalaryFrom");
+                param.Add("SalaryFrom", salaryFromValue);
+            }
+
+            if (decimal.TryParse(salaryTo, NumberStyles.Number, CultureInfo.InvariantCulture, out var salaryToValue))
+            {
+                whereClauses.Add("e.Salary <= @SalaryTo");
+                param.Add("SalaryTo", salaryToValue);
+            }
+
+            if (gender.HasValue)
+            {
+                whereClauses.Add("e.Gender = @Gender");
+                param.Add("Gender", gender);
+            }
+
+            if (hireDateFrom.HasValue)
+            {
+                whereClauses.Add("DATE(e.HireDate) >= @HireDateFrom");
+                param.Add("HireDateFrom", hireDateFrom.Value.Date);
+            }
+
+            if (hireDateTo.HasValue)
+            {
+                whereClauses.Add("DATE(e.HireDate) <= @HireDateTo");
+                param.Add("HireDateTo", hireDateTo.Value.Date);
+            }
+
+            var whereSql = whereClauses.Count > 0
+                ? $"WHERE {string.Join(" AND ", whereClauses)}"
+                : string.Empty;
+
+            var offset = (pageIndex - 1) * pageSize;
+            param.Add("Offset", offset);
+            param.Add("PageSize", pageSize);
+
+            var dataSql = $@"
+                SELECT
+                    e.EmployeeID,
+                    e.EmployeeCode,
+                    e.EmployeeName,
+                    e.Gender,
+                    CASE e.Gender
+                        WHEN 0 THEN 'Nữ'
+                        WHEN 1 THEN 'Nam'
+                        WHEN 2 THEN 'Khác'
+                        ELSE 'Không xác định'
+                    END AS GenderName,
+                    e.DateOfBirth,
+                    e.PhoneNumber,
+                    e.Email,
+                    e.Address,
+                    e.DepartmentID,
+                    d.DepartmentCode,
+                    d.DepartmentName,
+                    e.PositionID,
+                    p.PositionCode,
+                    p.PositionName,
+                    e.Salary,
+                    e.HireDate,
+                    e.CreatedDate
+                FROM employee e
+                LEFT JOIN department d ON e.DepartmentID = d.DepartmentID
+                LEFT JOIN position p ON e.PositionID = p.PositionID
+                {whereSql}
+                ORDER BY e.CreatedDate DESC
+                LIMIT @Offset, @PageSize;";
+
+            var totalSql = $@"
+                SELECT COUNT(*) AS Total
+                FROM employee e
+                {whereSql};";
 
             await using var connection = CreateConnection();
             await connection.OpenAsync();
 
-            using var reader = await connection.QueryMultipleAsync(
-                "Proc_Employee_Filter",
-                param,
-                commandType: System.Data.CommandType.StoredProcedure);
-
-            var data = (await reader.ReadAsync<Employee>()).ToList();
-            var total = await reader.ReadFirstAsync<long>();
+            var data = (await connection.QueryAsync<Employee>(dataSql, param, commandType: System.Data.CommandType.Text)).ToList();
+            var total = await connection.ExecuteScalarAsync<long>(totalSql, param, commandType: System.Data.CommandType.Text);
 
             return new PagingResponse<Employee>
             {
